@@ -1,0 +1,10 @@
+# CONDA
+.conda/*
+
+# TFLITE
+ModelTFLite/*.tflite
+ModelTFLite/*.json
+
+# PYCACHED
+__pycache__/*
+*.pyc
