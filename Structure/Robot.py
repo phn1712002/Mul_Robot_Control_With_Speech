@@ -1,5 +1,7 @@
-import pyfirmata
+import pyfirmata, os
+from Device.Peripherals import Micro, Camera
 from Tools.Json import loadJson, saveJson
+from Tools.Folder import getFileWithPar
 from pyfirmata import Arduino
 from Device.Motor import Model_17HS3401, Model_MG90S
 from .Arm import PickDropMechanism_V1
@@ -17,6 +19,7 @@ class  Robot_V1:
         ###  Get all config for device ###
         
         self.config_board = self.config['board']
+        self.config_name = self.config['name']
         
         self.config_ena_motor = self.config['ena_motor']
         
@@ -118,3 +121,35 @@ class  Robot_V1:
     def getConfig(self, path=None):
         if not path is None: return saveJson(path=path, data=self.config)
         return self.config
+    
+
+class Mul_RB:
+    def __init__(self, path_folder_config='./Config/') -> None:
+        self.path_folder_config = path_folder_config
+        
+        self.config_mrb = loadJson(getFileWithPar(path=path_folder_config, name_file='config_MRB.json')[0])
+        
+        self.cam = Camera(self.config_mrb['cam'])
+        self.mic = Micro(self.config_mrb['micro'])
+        
+        self.ar_mul_rb = self.__settingMulRB(path_folder_config=path_folder_config)
+        self.list_name_rb, self.max_idx_rb = self.__getNameAllRB()
+        
+    def __settingMulRB(self, path_folder_config):
+        ar_mul_rb = []
+        all_path_config_rb = getFileWithPar(path=path_folder_config, name_file='config_RB_*.json')
+        
+        for path_config in all_path_config_rb:
+            ar_mul_rb.append(Robot_V1(path_config))
+        return ar_mul_rb
+        
+    def __getNameAllRB(self):
+        idx = 0
+        dict_idx_name = {}
+        for rb in self.ar_mul_rb:
+            dict_idx_name.update({idx:rb.config_name}) 
+            idx += 1
+        return dict_idx_name, idx
+    
+    def getAngleOneLink(self, idx_or_name, idx_link): pass 
+    def getAngleThreeLink(self, idx_or_name, angle): pass

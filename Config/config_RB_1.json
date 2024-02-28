@@ -1,5 +1,7 @@
 {
-    "board": "/dev/ttyACM2",
+    "board": "/dev/ttyACM0",
+    "name": "", 
+
     "ena_motor": {
         "pin": 8,
         "input": 0
