@@ -133,7 +133,7 @@ class  Robot_V1:
     
 
 class Mul_RB:
-    def __init__(self, path_folder_config='./Config/') -> None:
+    def __init__(self, path_folder_config='./Config/', config_actions=False) -> None:
         self.path_folder_config = path_folder_config
         
         self.config_mrb = loadJson(getFileWithPar(path=path_folder_config, name_file='config_MRB.json')[0])
@@ -145,7 +145,7 @@ class Mul_RB:
         self.mic = Micro(**self.config_mic)
 
         self.remove_noise = WaveUnet_tflite(**self.config_model['WaveUnet']).predict
-        self.speech_to_text = Wav2Vec2_tflite(**self.config_model['Wave2Vec2']).predict
+        self.speech_to_text = Wav2Vec2_tflite(**self.config_model['Wav2Vec2']).predict
         self.format_text = self.__proccessText
         
         self.status_listen = threading.Thread(target=self.__thread_listen)
@@ -153,10 +153,11 @@ class Mul_RB:
         
         self.run = False
         self.case_run = None
+        if config_actions: self.configActions()
         self.ar_case_run = loadJson(getFileWithPar(path=path_folder_config, name_file='archive_case.json')[0])
         
         self.ar_mul_rb = self.__settingMulRB(path_folder_config=path_folder_config)
-        self.list_name_rb, self.max_idx_rb = self.__getNameAllRB()
+        self.list_name_rb = self.__getNameAllRB()
         
     def __settingMulRB(self, path_folder_config):
         ar_mul_rb = []
@@ -164,7 +165,7 @@ class Mul_RB:
         
         for path_config in all_path_config_rb:
             ar_mul_rb.append(Robot_V1(path_config))
-        return ar_mul_rb, len(ar_mul_rb)
+        return ar_mul_rb
         
     def __getNameAllRB(self):
         idx = 0
@@ -180,6 +181,9 @@ class Mul_RB:
         elif type(idx_or_name) == int:
             idx = idx_or_name
         return idx
+    
+    def __idxToName(self, idx):
+        return [name for name in self.list_name_rb.keys() if self.list_name_rb[name] == idx][0] 
             
     def __thread_listen(self):
         while self.run:
@@ -206,6 +210,60 @@ class Mul_RB:
         idx  = self.__nameToIdx(idx_or_name)
         return self.ar_mul_rb[idx].controlOneLink(idx_link, angle)
 
+    
+    def configActions(self):
+        loop_mul_rb = True
+        data_save_actions = {}
+        
+        while loop_mul_rb:
+            os.system("cls")
+            print("List all robot in multi:")
+            for name, idx in self.list_name_rb:
+                print(f"{idx}. Robot_{idx} - {name}")
+            select = input("Please enter the name or index of the robot you want to select:")
+            idx_rb = self.__nameToIdx(select)
+            name_rb = self.__idxToName(idx_rb)
+            
+            loop_save_actions = True
+            actions = []
+            while loop_save_actions:
+                os.system("cls")
+                link = input("Please enter index of link:")
+                angle = input("Please enter angle:")
+                
+                angle_after = self.ar_mul_rb[idx_rb].controlOneLink(link, angle)
+                
+                while True:
+                    os.system("cls")
+                    print(f"Robot_{idx_rb} name {name_rb} have input link_{link} with angle {angle} -> angle after {angle_after}")
+                    select = input("Save (S) - Delete (D)")
+                    if self.format_text(select) == 's':
+                        actions.append([link, angle])
+                        break
+                    elif self.format_text(select) == 'd':
+                        break
+                    
+                while True:
+                    os.system("cls")
+                    select = input("Continue save action (Y/N):")
+                    if self.format_text(select) == 'y':
+                        break
+                    elif self.format_text(select) == 'n':
+                        loop_save_actions = False
+                        data_save_actions.update(name_rb, actions)
+                        break
+                
+            while True:
+                os.system("cls")
+                select = input("Continue save action with robot other (Y/N):")
+                if self.format_text(select) == 'y':
+                    break
+                elif self.format_text(select) == 'n':
+                    loop_mul_rb = False
+                    break
+                
+        return saveJson(self.path_folder_config + 'archive_case.json', data_save_actions)
+    
     def runHandle(self):
         #? Start the flag
         self.run = True
