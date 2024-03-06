@@ -18,7 +18,7 @@ class Base_V1(MechanicalComponents):
         self.sign_steps_break = None
         
     def step(self, angle):
-        def checkStop_fn(self, angle, sign_steps):
+        def checkStop_fn(self, angle, sign_steps, exit):
             """ Function callbacks using in steps with task checkStop (stop motor when got stuck)
                 Like fucntion checkStop_fn in Link.py
                 Just different checkStop with angle, no switch limit
@@ -32,17 +32,17 @@ class Base_V1(MechanicalComponents):
                 bool: True - Break, False - No Break
             """
             # Check angle
-            check = angle < self.angle_limit[0] or angle > self.angle_limit[1] # Diffenrent Link.py
+            if not exit:
+                if angle < self.angle_limit[0] and angle > self.angle_limit[1]:
+                    if angle > self.angle_limit[1] and sign_steps == 1: return True
+                    elif angle < self.angle_limit[0] and sign_steps == -1: return True
+            return False
             
-            if check:
-                if self.sign_steps_break == None: return True
-                if self.sign_steps_break == sign_steps: return True
-                else:
-                    self.sign_steps_break = None
-                    return False
         
         # Control motor step
-        return self.motor.step(angle=self.gear.calcParameter(input=angle, inverse=True), delay=self.delay_motor, checkStop=lambda angle, sign_steps, exit: checkStop_fn(self, angle, sign_steps))        
+        return self.motor.step(angle=self.gear.calcParameter(input=angle, inverse=True), delay=self.delay_motor, 
+                               checkStop=lambda angle=0, sign_steps=0, exit=False: checkStop_fn(self, angle, sign_steps, exit)
+                               )        
         
     def getAngle(self):
         return self.motor.history_step_angle

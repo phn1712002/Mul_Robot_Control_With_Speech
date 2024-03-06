@@ -20,6 +20,7 @@ class Model_17HS3401(Motor):
                  dir_pin:int,
                  div_step=1,
                  pos_dir=0,
+                 step_skip=1,
                  name=None):
         
         # Env
@@ -31,12 +32,12 @@ class Model_17HS3401(Motor):
         self.step_pin = board.get_pin(f'd:{step_pin}:o')
         self.div_step = div_step
         self.pos_dir = pos_dir
+        self.step_skip = step_skip
         
         # Save info step motor
         self.history_step_angle = 0
         self._step_angle_conts = 1.8
-        self.step_angle = self._step_angle_conts / div_step
-        
+        self.step_angle = self._step_angle_conts / div_step        
         
     def step(self, angle, delay=0.0001, checkStop=None):
         
@@ -59,7 +60,7 @@ class Model_17HS3401(Motor):
         
         # Control direction
         self.dir_pin.write(direction)
-        for _ in range(steps):
+        for idx in range(steps):
             
             # Control Motor
             self.step_pin.write(self.HIGHT)
@@ -70,16 +71,18 @@ class Model_17HS3401(Motor):
             # Calc angle future
             temp_angle = self.history_step_angle + self.step_angle * i * sign_steps
             
-            # Check stop 
-            if not checkStop is None:
+            # Check stop
+            if not checkStop is None and idx % (self.div_step * self.step_skip) == 0:
                 if checkStop(angle=temp_angle, sign_steps=sign_steps) == True: in_progress_break = True
+                
             
             # Break out
             if not in_progress_break: self.history_step_angle = temp_angle
             else: break
             
         # Exit checkStop and create reset checkStop
-        checkStop(exit=True)
+        if not checkStop is None:
+            checkStop(exit=True)
         delayMicroseconds(delay)
         
         return self.history_step_angle, in_progress_break
@@ -88,11 +91,14 @@ class Model_MG90S(Motor):
     def __init__(self, board:Arduino, pin:int, name=None):
         super().__init__(board=board, name=name)
         self.servo = board.get_pin(f'd:{pin}:s')
+        self.angle_current = 0
         
+    def step(self, angle, delay=15):
+        while angle > 0:
+            self.servo.write(angle)
+            delayMicroseconds(delay)
         
-    def step(self, angle, delay=1):
-        self.servo.write(angle)
-        time.sleep(delay)
-        return angle
+        self.angle_current += angle
+        return self.angle_current
              
             

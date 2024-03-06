@@ -1,5 +1,5 @@
 
-import cv2, keyboard, numpy as np, sounddevice as sd
+import cv2, keyboard, tensorflow as tf, sounddevice as sd
 from .Components import ElectronicComponents
 
 
@@ -23,6 +23,9 @@ class Micro(ElectronicComponents):
         sd.wait()
         print("End recoding")
         return audio_data
+
+    def getFrameToTensor(self):
+        return tf.squeeze(tf.convert_to_tensor(self.getFrame()))
     
     def playFrame(self, audio_data):
         sd.play(audio_data, self.rate)

@@ -1,11 +1,13 @@
 import os
 from Structure.Robot import Mul_RB
 
-# CLEAN PYC
+#! CLEAN SYSTEM
 os.system('pyclean .')
+os.system('cls')
 
-# PATH CONFIG MODEL
-PATH_CONFIG_MUL_RB = './Config'
+#! PATH CONFIG MODEL
+PATH_CONFIG_MUL_RB = './Config/'
 
-# CREATE MULTI ROBOT
+#! CREATE MULTI ROBOT
 mul = Mul_RB(PATH_CONFIG_MUL_RB)
+ 

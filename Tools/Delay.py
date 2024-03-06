@@ -2,8 +2,8 @@ import time
 
 def delaySeconds(seconds):
     time.sleep(seconds)
-    
     return None
+
 def delayMicroseconds(microseconds):
     # Xác định thời điểm bắt đầu
     start_time = time.perf_counter_ns()

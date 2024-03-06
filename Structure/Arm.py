@@ -7,7 +7,7 @@ class PickDropMechanism_V1(MechanicalComponents):
                  motor: Motor, 
                  z=[1, 2], 
                  angle_limit=[0 , 120],
-                 delay_motor=0.5,
+                 delay_motor=15,
                  name=None):
         super().__init__(name=name)
         self.motor = motor

@@ -1,6 +1,6 @@
 from pyfirmata import Arduino
 from .Components import ElectronicComponents
-
+from Tools import Delay
 # Interfaces
 class Switch(ElectronicComponents):
     def __init__(self, board: Arduino, pin: int, name=None):
@@ -44,7 +44,7 @@ class Model_2A_Analog(Switch):
         self.button = board.get_pin(f'a:{self.pin}:i')
         self.inverse_message = inverse_message
         
-    def checkClick(self, count_check=1):
+    def checkClick(self, count_check=5):
         """
             Check switch is pressed ?
         Returns:

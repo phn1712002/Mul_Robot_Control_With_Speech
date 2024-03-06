@@ -1,12 +1,20 @@
 {
-    "count_rb_control": 2,
-
     "mic": {
-
+        "record_seconds_default": 5, 
+        "rate": 16000,
+        "channels": 1
     },
-    "camera":{
-
+    "cam":{
+        "COM": 0
     },
     "model":{
+        "Wav2Vec2": {
+            "path": "./ModelTFLite/",
+            "name_file": "Wav2Vec2"
+        },
+        "WaveUnet": {
+            "path": "./ModelTFLite/",
+            "name_file": "WaveUnet"
+        }
     }
 }
