@@ -218,8 +218,8 @@ class Mul_RB:
     
     def thread_cam(self, time_delay=1000):
         while self.run:
-            if self.mic.rec_flag: text = f"Status current: {str(self.case_current_name)} - Recoding!"
-            else: text = f"Status current: {str(self.case_current_name)}"
+            if self.mic.rec_flag: text = f"Status current: {str(self.case_current_name).upper()} - Recoding!"
+            else: text = f"Status current: {str(self.case_current_name).upper()}"
             frame = self.cam.getFrame() 
             frame = self.cam.writeText(frame=frame, 
                                        text=text,
