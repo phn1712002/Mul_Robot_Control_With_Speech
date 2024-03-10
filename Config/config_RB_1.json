@@ -15,7 +15,7 @@
     "link_base":{
         "z": [40.5, 78], 
         "angle_limit": [-60, 60],
-       "delay_motor": 1000
+       "delay_motor": 700
     },
     "switch_a_2motor":{
         "pin": 0,
@@ -34,7 +34,7 @@
     },
     "link_1":{
         "z": [20 ,49],
-       "delay_motor": 1000
+       "delay_motor": 700
     },
 
     "motor_right": {
@@ -50,7 +50,7 @@
     },
     "link_2":{
         "z": [20 ,49],
-       "delay_motor": 1000
+       "delay_motor": 700
     },
 
     "motor_arm":{
@@ -59,9 +59,9 @@
     "link_arm":{
         "z": [1, 1],
         "angle_limit": [0, 120],
-        "delay_motor": 1000
+        "delay_motor": 700
     },
     "multi_switch":{
-        "time_delay_break_out": 5000
+        "time_delay_break_out": 1400
     }
 }

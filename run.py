@@ -10,4 +10,5 @@ PATH_CONFIG_MUL_RB = './Config/'
 
 #! CREATE MULTI ROBOT
 mul = Mul_RB(PATH_CONFIG_MUL_RB)
+mul.runHandle()
  

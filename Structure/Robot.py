@@ -1,4 +1,4 @@
-import pyfirmata, os, threading, keyboard, re
+import pyfirmata, os, threading, re, keyboard
 from Device.Peripherals import Micro, Camera
 from Tools.Json import loadJson, saveJson
 from Tools.Folder import getFileWithPar
@@ -8,13 +8,13 @@ from .Arm import PickDropMechanism_V1
 from .Base import Base_V1
 from .Link import Link_V1
 from .SystemSensor import MultiSwitch_V1
-from Tools.Delay import delaySeconds
+from Tools.Delay import delaySeconds, delayMicroseconds
 from ModelAI.Wav2Vec2.Architecture.Model import Wav2Vec2_tflite
 from ModelAI.WaveUnet.Architecture.Model import WaveUnet_tflite
 
 class  Robot_V1:
     def __init__(self, config_or_path):
-        if config_or_path.__class__ is str:
+        if type(config_or_path) == str:
             self.config = loadJson(config_or_path)
         else:
             self.config = config_or_path 
@@ -87,7 +87,7 @@ class  Robot_V1:
 
         #? Check status start of Robot
         delaySeconds(1)
-        if not self.checkStatusStart(): raise Exception("Please set the robot state to the starting position")
+        #if not self.checkStatusStart(): raise Exception("Please set the robot state to the starting position")
     
     def checkStatusStart(self):
         if self.multi_switch.switch_right.checkClick() and self.multi_switch.switch_left.checkClick() and not (self.multi_switch.switch_mid.checkClick()): return True
@@ -140,26 +140,30 @@ class Mul_RB:
         self.config_model = self.config_mrb['model']
         self.config_mic = self.config_mrb['mic']
         self.config_cam =  self.config_mrb['cam']
+        self.config_key =  self.config_mrb['key']
         
-        self.cam = Camera(**self.config_cam)
-        self.mic = Micro(**self.config_mic)
+        self.cam = Camera(**self.config_cam, key_stop=self.config_key['key_stop'])
+        self.mic = Micro(**self.config_mic, **self.config_key)
 
-        self.remove_noise = WaveUnet_tflite(**self.config_model['WaveUnet']).predict
-        self.speech_to_text = Wav2Vec2_tflite(**self.config_model['Wav2Vec2']).predict
-        self.format_text = self.__proccessText
+        self.remove_noise = WaveUnet_tflite(**self.config_model['WaveUnet']).build().predict
+        self.speech_to_text = Wav2Vec2_tflite(**self.config_model['Wav2Vec2']).build().predict
+        self.format_text = self.proccessText
         
-        self.status_listen = threading.Thread(target=self.__thread_listen)
-        self.status_control = threading.Thread(target=self.__thread_controlRB)
-        
+        self.status_listen = threading.Thread(target=self.thread_listen)
+        self.status_control = threading.Thread(target=self.thread_controlRB)
+        self.status_monitor = threading.Thread(target=self.thread_cam)
+
         self.run = False
         self.case_run = None
+        self.case_current_name = None
+        self.change_case = None
         if config_actions: self.configActions()
         self.ar_case_run = loadJson(getFileWithPar(path=path_folder_config, name_file='archive_case.json')[0])
         
-        self.ar_mul_rb = self.__settingMulRB(path_folder_config=path_folder_config)
-        self.list_name_rb = self.__getNameAllRB()
+        self.ar_mul_rb = self.settingMulRB(path_folder_config=path_folder_config)
+        self.list_name_rb = self.getNameAllRB()
         
-    def __settingMulRB(self, path_folder_config):
+    def settingMulRB(self, path_folder_config):
         ar_mul_rb = []
         all_path_config_rb = getFileWithPar(path=path_folder_config, name_file='config_RB_*.json')
         
@@ -167,50 +171,72 @@ class Mul_RB:
             ar_mul_rb.append(Robot_V1(path_config))
         return ar_mul_rb
         
-    def __getNameAllRB(self):
+    def getNameAllRB(self):
         idx = 0
         dict_idx_name = {}
         for rb in self.ar_mul_rb:
             dict_idx_name.update({idx:rb.config_name}) 
             idx += 1
-        return dict_idx_name, idx
+        return dict_idx_name
     
-    def __nameToIdx(self, idx_or_name):
-        if type(idx_or_name) == str:
-            idx = self.list_name_rb[idx_or_name]
-        elif type(idx_or_name) == int:
-            idx = idx_or_name
-        return idx
-    
-    def __idxToName(self, idx):
-        return [name for name in self.list_name_rb.keys() if self.list_name_rb[name] == idx][0] 
+    def find_rb(self, idx_or_name:str):
+        idx_current = None
+        name_current = None
+        if idx_or_name in self.list_name_rb:
+            idx_current = int(idx_or_name)
+            name_current = self.list_name_rb[idx_current]
+        else:
+            for idx, name in self.list_name_rb.items():
+                if name == idx_or_name:
+                    idx_current = idx
+                    name_current = name
+                    break
+        return self.ar_mul_rb[idx_current], idx_current, name_current
             
-    def __thread_listen(self):
+    def thread_listen(self):
         while self.run:
             audio = self.mic.getFrameToTensor()
-            speech = self.remove_noise(audio)
-            text = self.speech_to_text(speech)
-            text = self.format_text(text)
-            if text in self.ar_case_run:
-                self.case_run = self.ar_case_run[text]
+            self.change_case = False
+            if not (audio is None):
+                speech = self.remove_noise(audio)
+                text = self.speech_to_text(speech)
+                text = self.format_text(text)
+                print(f"Predict: {text}")
+                if text in self.ar_case_run:
+                    self.case_run = self.ar_case_run[text]
+                    self.case_current_name = text
+                    self.change_case = True
                 
-    def __thread_controlRB(self):
+    def thread_controlRB(self): 
         while self.run:
             if self.case_run != None:
-                for name, actions in self.case_run:
-                    for link, angle in actions:
+                for name, actions in self.case_run.items():
+                    for link, angle, time_delay in actions:
                         self.controlOneLink(name, link, angle)
+                        delayMicroseconds(time_delay)
+            else: delaySeconds(1)
+    
+    def thread_cam(self, time_delay=1000):
+        while self.run:
+            if self.mic.rec_flag: text = f"Status current: {str(self.case_current_name)} - Recoding!"
+            else: text = f"Status current: {str(self.case_current_name)}"
+            frame = self.cam.getFrame() 
+            frame = self.cam.writeText(frame=frame, 
+                                       text=text,
+                                       org=(100, 100))
+            self.run = not(self.cam.liveView(frame))
+            delayMicroseconds(time_delay)
+        self.cam.close()
         
-    def __proccessText(self, string):
-        special_chars_removed = re.sub(r"[^a-zA-Z0-9\s]", "", string)
-        lowercase_string = special_chars_removed.lower()
+    def proccessText(self, string):
+        trimmed_string = re.sub(r"\s+", " ", string)
+        lowercase_string = trimmed_string.lower()
         return lowercase_string
         
     def controlOneLink(self, idx_or_name, idx_link, angle):
-        idx  = self.__nameToIdx(idx_or_name)
-        return self.ar_mul_rb[idx].controlOneLink(idx_link, angle)
+        rb_current, _, _ = self.find_rb(idx_or_name)
+        return rb_current.controlOneLink(idx_link, angle)
 
-    
     def configActions(self):
         loop_mul_rb = True
         data_save_actions = {}
@@ -218,70 +244,75 @@ class Mul_RB:
         while loop_mul_rb:
             os.system("cls")
             print("List all robot in multi:")
-            for name, idx in self.list_name_rb:
+            for idx, name in self.list_name_rb.items():
                 print(f"{idx}. Robot_{idx} - {name}")
-            select = input("Please enter the name or index of the robot you want to select:")
-            idx_rb = self.__nameToIdx(select)
-            name_rb = self.__idxToName(idx_rb)
+            select = self.format_text(input("Please enter the name or index of the robot you want to select:"))
+            rb_current, idx_current, name_current = self.find_rb(select)
             
             loop_save_actions = True
             actions = []
             while loop_save_actions:
-                os.system("cls")
-                link = input("Please enter index of link:")
-                angle = input("Please enter angle:")
-                
-                angle_after = self.ar_mul_rb[idx_rb].controlOneLink(link, angle)
+                try:
+                    os.system("cls")
+                    print("Link_0 - Base | Link_1 - Link right | Link_2 - Link left | Link_3 - Arm")
+                    link = int(input("Please enter index of link (0 -> 3): "))
+                    angle = float(input("Please enter angle (-:Left, +:Right): "))
+                    angle_after = rb_current.controlOneLink(link, angle)
+                except KeyError: print(KeyError)
                 
                 while True:
                     os.system("cls")
-                    print(f"Robot_{idx_rb} name {name_rb} have input link_{link} with angle {angle} -> angle after {angle_after}")
-                    select = input("Save (S) - Delete (D)")
+                    print(f"Robot_{idx_current} name {name_current} have input link_{link} with angle {angle} -> angle after {angle_after}")
+                    time_stop = float(input("Please enter time stop of action current (Microseconds): "))
+                    select = input("Save (S) - Delete (D) :")
                     if self.format_text(select) == 's':
-                        actions.append([link, angle])
+                        actions.append([link, angle, time_stop])
                         break
                     elif self.format_text(select) == 'd':
                         break
                     
                 while True:
                     os.system("cls")
-                    select = input("Continue save action (Y/N):")
+                    select = input(f"Continue save actions of robot_{idx_current} name {name_current} (Y/N):")
                     if self.format_text(select) == 'y':
                         break
                     elif self.format_text(select) == 'n':
                         loop_save_actions = False
-                        data_save_actions.update(name_rb, actions)
+                        data_save_actions.update({name_current: actions})
                         break
                 
             while True:
                 os.system("cls")
-                select = input("Continue save action with robot other (Y/N):")
+                select = input("Continue save actions with robot other (Y/N): ")
                 if self.format_text(select) == 'y':
                     break
                 elif self.format_text(select) == 'n':
                     loop_mul_rb = False
                     break
                 
-        return saveJson(self.path_folder_config + 'archive_case.json', data_save_actions)
+        os.system("cls")
+        name_status = self.format_text(input("Name of status?: "))
+        path_current = self.path_folder_config + 'archive_case.json'
+        data_current = loadJson(path_current)     
+        data_current.update({name_status: data_save_actions})
+        
+        return saveJson(path_current, data_current)
     
+        
     def runHandle(self):
         #? Start the flag
         self.run = True
         
         #? Start 2 theard
-        self.status_listen.start()
+        self.status_monitor.start()
         self.status_control.start()
-        
-        #? Wait
-        print("Press ESC to terminate the program.")
-        keyboard.wait('esc')
-
-        #? End the flag
-        self.run = False
+        self.status_listen.start()
         
         #? Wait 2 thread end task
-        self.status_listen.join()
+        self.status_monitor.join()
         self.status_control.join()
+        self.status_listen.join()
+        print("End task")
             
             
         

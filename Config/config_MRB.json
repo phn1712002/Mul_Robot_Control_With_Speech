@@ -5,7 +5,12 @@
         "channels": 1
     },
     "cam":{
-        "COM": 0
+        "COM": 0,
+        "path_font": "./Other/arial.ttf"
+    },
+    "key":{
+        "key_stop": "q",
+        "key_play_recoding": "r"
     },
     "model":{
         "Wav2Vec2": {
