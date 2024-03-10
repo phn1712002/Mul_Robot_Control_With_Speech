@@ -11,6 +11,7 @@ from .SystemSensor import MultiSwitch_V1
 from Tools.Delay import delaySeconds, delayMicroseconds
 from ModelAI.Wav2Vec2.Architecture.Model import Wav2Vec2_tflite
 from ModelAI.WaveUnet.Architecture.Model import WaveUnet_tflite
+from Tools import CMD
 
 class  Robot_V1:
     def __init__(self, config_or_path):
@@ -242,7 +243,7 @@ class Mul_RB:
         data_save_actions = {}
         
         while loop_mul_rb:
-            os.system("cls")
+            CMD.clearCMD()
             print("List all robot in multi:")
             for idx, name in self.list_name_rb.items():
                 print(f"{idx}. Robot_{idx} - {name}")
@@ -253,7 +254,7 @@ class Mul_RB:
             actions = []
             while loop_save_actions:
                 try:
-                    os.system("cls")
+                    CMD.clearCMD()
                     print("Link_0 - Base | Link_1 - Link right | Link_2 - Link left | Link_3 - Arm")
                     link = int(input("Please enter index of link (0 -> 3): "))
                     angle = float(input("Please enter angle (-:Left, +:Right): "))
@@ -261,7 +262,7 @@ class Mul_RB:
                 except KeyError: print(KeyError)
                 
                 while True:
-                    os.system("cls")
+                    CMD.clearCMD()
                     print(f"Robot_{idx_current} name {name_current} have input link_{link} with angle {angle} -> angle after {angle_after}")
                     time_stop = float(input("Please enter time stop of action current (Microseconds): "))
                     select = input("Save (S) - Delete (D) :")
@@ -272,7 +273,7 @@ class Mul_RB:
                         break
                     
                 while True:
-                    os.system("cls")
+                    CMD.clearCMD()
                     select = input(f"Continue save actions of robot_{idx_current} name {name_current} (Y/N):")
                     if self.format_text(select) == 'y':
                         break
@@ -282,7 +283,7 @@ class Mul_RB:
                         break
                 
             while True:
-                os.system("cls")
+                CMD.clearCMD()
                 select = input("Continue save actions with robot other (Y/N): ")
                 if self.format_text(select) == 'y':
                     break
@@ -290,7 +291,7 @@ class Mul_RB:
                     loop_mul_rb = False
                     break
                 
-        os.system("cls")
+        CMD.clearCMD()
         name_status = self.format_text(input("Name of status?: "))
         path_current = self.path_folder_config + 'archive_case.json'
         data_current = loadJson(path_current)     
