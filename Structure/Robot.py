@@ -202,7 +202,6 @@ class Mul_RB:
                 speech = self.remove_noise(audio)
                 text = self.speech_to_text(speech)
                 text = self.format_text(text)
-                print(f"Predict: {text}")
                 if text in self.ar_case_run:
                     self.case_run = self.ar_case_run[text]
                     self.case_current_name = text
@@ -211,10 +210,15 @@ class Mul_RB:
     def thread_controlRB(self): 
         while self.run:
             if self.case_run != None:
+                list_thread_function = []
+                idx = 0
                 for name, actions in self.case_run.items():
-                    for link, angle, time_delay in actions:
-                        self.controlOneLink(name, link, angle)
-                        delayMicroseconds(time_delay)
+                    function = lambda: [self.controlOneLink(name, link, angle, time_delay) for link, angle, time_delay in actions]
+                    list_thread_function.append(threading.Thread(target=function))
+                    list_thread_function[idx].start()
+                    idx += 1
+                for current in list_thread_function:
+                    current.join()    
             else: delaySeconds(1)
     
     def thread_cam(self, time_delay=1000):
@@ -234,7 +238,8 @@ class Mul_RB:
         lowercase_string = trimmed_string.lower()
         return lowercase_string
         
-    def controlOneLink(self, idx_or_name, idx_link, angle):
+    def controlOneLink(self, idx_or_name, idx_link, angle, time_delay):
+        delayMicroseconds(time_delay)
         rb_current, _, _ = self.find_rb(idx_or_name)
         return rb_current.controlOneLink(idx_link, angle)
 
