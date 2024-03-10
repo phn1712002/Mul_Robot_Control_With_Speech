@@ -1,5 +1,5 @@
 {
-    "board": "COM5",
+    "board": "COM12",
     "name": "john", 
 
     "ena_motor": {
@@ -10,12 +10,14 @@
         "step_pin": 3,
         "dir_pin": 6,
         "div_step": 16,
-        "pos_dir": 0
+        "pos_dir": 0,
+        "step_skip": 2,
+        "slow_coef": 0.8
     },
     "link_base":{
         "z": [40.5, 78], 
         "angle_limit": [-60, 60],
-       "delay_motor": 700
+        "delay_motor": 700
     },
     "switch_a_2motor":{
         "pin": 0,
@@ -26,7 +28,8 @@
         "dir_pin": 7,
         "div_step": 16,
         "pos_dir": 0,
-        "step_skip": 2
+        "step_skip": 2,
+        "slow_coef": 0.8
     },
     "switch_left": {
         "pin": 2,
@@ -34,7 +37,7 @@
     },
     "link_1":{
         "z": [20 ,49],
-       "delay_motor": 700
+        "delay_motor": 700
     },
 
     "motor_right": {
@@ -42,7 +45,8 @@
         "dir_pin": 5,
         "div_step": 16,
         "pos_dir": 1,
-        "step_skip": 2
+        "step_skip": 2,
+        "slow_coef": 0.8
     },
     "switch_right": {
         "pin": 1,
@@ -50,7 +54,7 @@
     },
     "link_2":{
         "z": [20 ,49],
-       "delay_motor": 700
+        "delay_motor": 700
     },
 
     "motor_arm":{

@@ -1,7 +1,8 @@
 from pyfirmata import Arduino
 from .Components import ElectronicComponents
 from Tools.Delay import delayMicroseconds
-import time, numpy as np
+from Tools.Math import funcTimeDelayStep
+import numpy as np
 
 
 # Interfaces
@@ -21,6 +22,7 @@ class Model_17HS3401(Motor):
                  div_step=1,
                  pos_dir=0,
                  step_skip=1,
+                 slow_coef=0.8,
                  name=None):
         
         # Env
@@ -33,6 +35,7 @@ class Model_17HS3401(Motor):
         self.div_step = div_step
         self.pos_dir = pos_dir
         self.step_skip = step_skip
+        self.slow_coef = slow_coef
         
         # Save info step motor
         self.history_step_angle = 0
@@ -61,18 +64,18 @@ class Model_17HS3401(Motor):
         # Control direction
         self.dir_pin.write(direction)
         for idx in range(steps):
-            
+            delay_calc = delay + funcTimeDelayStep(steps, delay, idx, slow=self.slow_coef)
             # Control Motor
             self.step_pin.write(self.HIGHT)
-            delayMicroseconds(delay)
+            delayMicroseconds(delay_calc)
             self.step_pin.write(self.LOW)
-            delayMicroseconds(delay)
+            delayMicroseconds(delay_calc)
             
             # Calc angle future
             temp_angle = self.history_step_angle + self.step_angle * i * sign_steps
             
             # Check stop
-            if not checkStop is None and idx % (self.div_step * self.step_skip) == 0:
+            if not checkStop is None and idx % self.step_skip == 0:
                 if checkStop(angle=temp_angle, sign_steps=sign_steps) == True: in_progress_break = True
                 
             

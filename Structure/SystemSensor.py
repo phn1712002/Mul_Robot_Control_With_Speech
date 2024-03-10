@@ -49,8 +49,8 @@ class MultiSwitch_V1(SystemSensor):
         self.limit = [self.limit_left ,self.limit_right]
         
         self.wait_break_out = False
-        self.history_check = None
-        
+        self.check_m_firts_break = None
+        self.flag_firts_break = True
         
         self.time_delay_break_out = time_delay_break_out
     
@@ -66,46 +66,43 @@ class MultiSwitch_V1(SystemSensor):
             Returns:
                 bool: True - Break, False - No Break
             """
-            if exit: 
-                self.wait_break_out = False
-                return True
             
-            stop = True
+            list_sw = [self.check_l(), self.check_r()]
+            check_sw = bool(self.check_m() + list_sw[check_right])
+            limit = self.limit[check_right]
+            idx = int(max(sign_steps, 0))
+            reversed_idx = int(not bool(idx))
             
             if self.wait_break_out:
                 stop = False
-                check_current = [self.check_l(), self.check_m(), self.check_r()]
-                if  check_current != self.history_check:
-                    delayMicroseconds(self.time_delay_break_out)
+                
+                if self.flag_firts_break:
+                    self.check_m_firts_break = self.check_m()
+                    self.flag_firts_break = False
+                    
+                if not(check_sw): 
                     self.wait_break_out = False
-                    index = int(max(0, sign_steps))
-                    reversed_index = int(not bool(index))
-                    self.limit[check_right][reversed_index] = None
-                    if (check_current[1] != self.history_check[1]) and not check_current[1]:
-                        return_none = True
-                        if check_current[2] and (not check_right): return_none = False
-                        elif check_current[0] and check_right:  return_none = False
-                        if return_none: self.limit[(not check_right)][reversed_index] = None
+                    self.flag_firts_break = True
+                    self.limit[check_right][reversed_idx] = None
+                    if self.check_m_firts_break != self.check_m() and not(self.check_m()):
+                        if [self.check_l(), self.check_r()][not(check_right)]:
+                            if self.limit[not(check_right)][idx] is None: pass
+                            else: self.limit[not(check_right)][reversed_idx] = None
+                        else:
+                            self.limit[not(check_right)] = [None, None]
+                    delayMicroseconds(self.time_delay_break_out)
             else:
-                if self.limit[check_right][0] == self.limit[check_right][1]:
-                    stop = False
-                    if self.check_r() and check_right:
-                        index = int(max(0, sign_steps))
-                        self.limit[check_right][index] = sign_steps
+                if check_sw:
+                    if limit == [None, None]: 
                         stop = True
-                    elif self.check_l() and not check_right:
-                        index = int(max(0, sign_steps))
-                        self.limit[check_right][index] = sign_steps
-                        stop = True
-                    elif self.check_m():
-                        index = int(max(0, sign_steps))
-                        reversed_index = int(not bool(index))
-                        self.limit[check_right][index] = sign_steps
-                        self.limit[(not check_right)][reversed_index] = -sign_steps
-                        stop = True
-                elif not(sign_steps in self.limit[check_right]): 
-                    stop = False
-                    self.wait_break_out = True
-                    self.history_check = [self.check_l(), self.check_m(), self.check_r()]
-            
+                        self.limit[check_right][idx] = sign_steps
+                    elif sign_steps in limit: stop = True
+                    elif not (sign_steps in limit):
+                        self.wait_break_out = True
+                        stop = False
+                else: stop = False
+                
+                if self.check_m():
+                    self.limit[not(check_right)][reversed_idx] = -sign_steps
+                
             return stop

@@ -1,7 +1,6 @@
 from Device.Components import MechanicalComponents
 from Device.Motor import Motor
 from Device.Gear import SpurGear
-from Tools.Delay import delayMicroseconds, delaySeconds
 from .SystemSensor import SystemSensor
 
 # Class
@@ -30,16 +29,5 @@ class Link_V1(MechanicalComponents):
         
     def getAngle(self):
         return self.motor.history_step_angle
-    
-    def resetAngle(self):
-        def checkStop_fn(self):
-            check = True
-            return check
-
-        if self.motor.step(angle=-99999, delay=self.delay_motor, checkStop=lambda angle, sign_steps: checkStop_fn(self))[1]:
-            self.motor._history_step_angle = 0
-            return True
-        else: return False
-            
         
     
