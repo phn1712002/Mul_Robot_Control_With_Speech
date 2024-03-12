@@ -64,8 +64,5 @@
         "z": [1, 1],
         "angle_limit": [0, 120],
         "delay_motor": 700
-    },
-    "multi_switch":{
-        "time_delay_break_out": 1400
     }
 }

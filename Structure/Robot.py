@@ -43,7 +43,6 @@ class  Robot_V1:
         self.config_motor_arm = self.config['motor_arm'] 
         self.config_link_arm = self.config['link_arm']
         
-        self.config_multi_switch = self.config['multi_switch']
         #? Config board
         self.board = Arduino(self.config_board)
         pyfirmata.util.Iterator(self.board).start()
@@ -57,8 +56,7 @@ class  Robot_V1:
         self.multi_switch = MultiSwitch_V1(board=self.board, 
                                            config_switch_right=self.config_switch_right,
                                            config_switch_left=self.config_switch_left,
-                                           config_switch_2mid=self.config_switch_a_2motor, 
-                                           **self.config_multi_switch)
+                                           config_switch_2mid=self.config_switch_a_2motor)
         
         #? Config motor right
         self.motor_right = Model_17HS3401(board=self.board, **self.config_motor_right)

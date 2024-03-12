@@ -64,7 +64,7 @@ class Model_17HS3401(Motor):
         # Control direction
         self.dir_pin.write(direction)
         for idx in range(steps):
-            delay_calc = delay + funcTimeDelayStep(steps, delay, idx, slow=self.slow_coef)
+            delay_calc = delay + funcTimeDelayStep(steps, self.slow_coef * delay, idx)
             # Control Motor
             self.step_pin.write(self.HIGHT)
             delayMicroseconds(delay_calc)
