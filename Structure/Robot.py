@@ -270,7 +270,9 @@ class Mul_RB:
                     time_stop = float(input("Please enter time stop of action current (Microseconds): "))
                     select = input("Save (S) - Delete (D) :")
                     if self.format_text(select) == 's':
-                        actions.append([link, math.floor(angle_after), time_stop])
+                        if angle_after < 0 : angle_after = -math.floor(abs(angle_after))
+                        else: angle_after = math.floor(angle_after)
+                        actions.append([link, angle_after, time_stop])
                         break
                     elif self.format_text(select) == 'd':
                         break
