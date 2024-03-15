@@ -1,4 +1,4 @@
-import pyfirmata, os, threading, re, keyboard
+import pyfirmata, threading, re, math
 from Device.Peripherals import Micro, Camera
 from Tools.Json import loadJson, saveJson
 from Tools.Folder import getFileWithPar
@@ -261,7 +261,7 @@ class Mul_RB:
                     print("Link_0 - Base | Link_1 - Link right | Link_2 - Link left | Link_3 - Arm")
                     link = int(input("Please enter index of link (0 -> 3): "))
                     angle = float(input("Please enter angle (-:Left, +:Right): "))
-                    angle_after = rb_current.controlOneLink(link, angle)
+                    angle_after, stop = rb_current.controlOneLink(link, angle)
                 except KeyError: print(KeyError)
                 
                 while True:
@@ -270,7 +270,7 @@ class Mul_RB:
                     time_stop = float(input("Please enter time stop of action current (Microseconds): "))
                     select = input("Save (S) - Delete (D) :")
                     if self.format_text(select) == 's':
-                        actions.append([link, angle, time_stop])
+                        actions.append([link, math.floor(angle_after), time_stop])
                         break
                     elif self.format_text(select) == 'd':
                         break
