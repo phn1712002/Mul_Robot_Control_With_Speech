@@ -105,5 +105,5 @@ class MultiSwitch_V1(SystemSensor):
                     
                     if self.check_m():
                         self.limit[not(check_right)][reversed_idx] = -sign_steps
-                    
+            print(stop)
             return stop

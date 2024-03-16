@@ -1,9 +1,8 @@
+import os, random
 from Structure.Robot import Robot_V1
-
-
-rb = Robot_V1('Config\config_RB_2.json')
+os.system('pyclean .')
+rb = Robot_V1('Config\config_RB_1.json')
 while True:
-  rb.controlOneLink(2, 50)
-  rb.controlOneLink(1, 50)
-  rb.controlOneLink(1, -50)
-  rb.controlOneLink(2, -50)
+  link = random.randint(0, 2)
+  angle = random.randint(-90, 90)
+  rb.controlOneLink(link, angle)
