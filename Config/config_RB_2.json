@@ -1,6 +1,6 @@
 {
-    "board": "COM12",
-    "name": "john", 
+    "board": "COM7",
+    "name": "xera", 
 
     "ena_motor": {
         "pin": 8,
@@ -12,7 +12,7 @@
         "div_step": 16,
         "pos_dir": 0,
         "step_skip": 2,
-        "slow_coef": 0.5
+        "slow_coef": 0.8
     },
     "link_base":{
         "z": [40.5, 78], 
@@ -21,7 +21,7 @@
     },
     "switch_a_2motor":{
         "pin": 0,
-        "inverse_message": true
+        "inverse_message": false
     },
     "motor_left": {
         "step_pin": 4,
@@ -29,11 +29,11 @@
         "div_step": 16,
         "pos_dir": 0,
         "step_skip": 2,
-        "slow_coef": 0.5
+        "slow_coef": 0.8
     },
     "switch_left": {
         "pin": 2,
-        "inverse_message": true
+        "inverse_message": false
     },
     "link_1":{
         "z": [20 ,49],
@@ -46,11 +46,11 @@
         "div_step": 16,
         "pos_dir": 1,
         "step_skip": 2,
-        "slow_coef": 0.5
+        "slow_coef": 0.8
     },
     "switch_right": {
         "pin": 1,
-        "inverse_message": true
+        "inverse_message": false
     },
     "link_2":{
         "z": [20 ,49],

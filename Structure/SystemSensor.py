@@ -70,6 +70,7 @@ class MultiSwitch_V1(SystemSensor):
             limit = self.limit[check_right]
             idx = int(max(sign_steps, 0))
             reversed_idx = int(not bool(idx))
+            stop = False
             
             if exit:
                 self.wait_break_out = False
