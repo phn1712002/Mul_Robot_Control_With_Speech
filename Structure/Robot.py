@@ -214,18 +214,20 @@ class Mul_RB:
     def thread_controlRB(self): 
         while self.run:
             if self.case_run != None:
-                list_thread_function = []
+                list_thread_function_control = []
                 idx = 0
                 for name, actions in self.case_run.items():
                     if name in list(self.list_name_rb.values()): 
-                        for link, angle, time_delay in actions:
-                            self.controlOneLink(name, link, angle, time_delay) 
-                        #function = lambda: [self.controlOneLink(name, link, angle, time_delay) for link, angle, time_delay in actions]
-                        #list_thread_function.append(threading.Thread(target=function))
-                        ##list_thread_function[idx].start()
-                        #idx += 1
-                #for current in list_thread_function:
-                #    current.join()      
+                        #for link, angle, time_delay in actions:
+                            #self.controlOneLink(name, link, angle, time_delay) 
+                        #? Systeam control all robot only time
+                        function_control = lambda: [self.controlOneLink(name, link, angle, time_delay) for link, angle, time_delay in actions]
+                        list_thread_function_control.append(threading.Thread(target=function_control))
+                        list_thread_function_control[idx].start()
+                        idx += 1
+                #? Wait system control all robot
+                for current in list_thread_function_control:
+                    current.join()      
             else: delaySeconds(1)
     
     def thread_cam(self, time_delay=1000):
