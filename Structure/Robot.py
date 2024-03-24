@@ -145,6 +145,7 @@ class Mul_RB:
         self.config_mic = self.config_mrb['mic']
         self.config_cam =  self.config_mrb['cam']
         self.config_key =  self.config_mrb['key']
+        self.count_robot_control = self.config_mrb['count_robot_control']
         
         self.cam = Camera(**self.config_cam, key_stop=self.config_key['key_stop'])
         self.mic = Micro(**self.config_mic, **self.config_key)
@@ -172,7 +173,8 @@ class Mul_RB:
         all_path_config_rb = getFileWithPar(path=path_folder_config, name_file='config_RB_*.json')
         
         for path_config in all_path_config_rb:
-            ar_mul_rb.append(Robot_V1(path_config))
+            if self.count_robot_control >= len(ar_mul_rb): break
+            else: ar_mul_rb.append(Robot_V1(path_config))
         return ar_mul_rb
         
     def getNameAllRB(self):
