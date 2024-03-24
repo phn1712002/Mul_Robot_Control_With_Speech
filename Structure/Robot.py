@@ -20,10 +20,11 @@ class  Robot_V1:
         else:
             self.config = config_or_path 
             
-        ###  Get all config for device ###
-        
+        ###  Get all config for device ###  
         self.config_board = self.config['board']
         self.config_name = self.config['name']
+        self.angle_start = self.config['angle_start']
+        self.skip_check = self.config['skip_check']
         
         self.config_ena_motor = self.config['ena_motor']
         
@@ -85,9 +86,13 @@ class  Robot_V1:
         self.link_arm = PickDropMechanism_V1(motor=self.motor_arm, **self.config_link_arm)
 
         #? Check status start of Robot
-        delaySeconds(1)
-        #if not self.checkStatusStart(): raise Exception("Please set the robot state to the starting position")
-    
+        if not self.skip_check: 
+            if not self.checkStatusStart(): raise Exception("Please set the robot state to the starting position")
+        if not(self.angle_start is None): self.statusStart(**self.angle_start)
+        
+    def statusStart(self, angle_1=50, angle_2=50):
+        return self.controlOneLink(1, angle_1), self.controlOneLink(2, angle_2)
+        
     def checkStatusStart(self):
         if self.multi_switch.switch_right.checkClick() and self.multi_switch.switch_left.checkClick() and not (self.multi_switch.switch_mid.checkClick()): return True
         return False        
@@ -184,13 +189,14 @@ class Mul_RB:
         if idx_or_name in self.list_name_rb:
             idx_current = int(idx_or_name)
             name_current = self.list_name_rb[idx_current]
+            return self.ar_mul_rb[idx_current], idx_current, name_current
         else:
             for idx, name in self.list_name_rb.items():
                 if name == idx_or_name:
                     idx_current = idx
                     name_current = name
-                    break
-        return self.ar_mul_rb[idx_current], idx_current, name_current
+                    return self.ar_mul_rb[idx_current], idx_current, name_current
+        return None, None, None
             
     def thread_listen(self):
         while self.run:
@@ -211,12 +217,15 @@ class Mul_RB:
                 list_thread_function = []
                 idx = 0
                 for name, actions in self.case_run.items():
-                    function = lambda: [self.controlOneLink(name, link, angle, time_delay) for link, angle, time_delay in actions]
-                    list_thread_function.append(threading.Thread(target=function))
-                    list_thread_function[idx].start()
-                    idx += 1
-                for current in list_thread_function:
-                    current.join()    
+                    if name in list(self.list_name_rb.values()): 
+                        for link, angle, time_delay in actions:
+                            self.controlOneLink(name, link, angle, time_delay) 
+                        #function = lambda: [self.controlOneLink(name, link, angle, time_delay) for link, angle, time_delay in actions]
+                        #list_thread_function.append(threading.Thread(target=function))
+                        ##list_thread_function[idx].start()
+                        #idx += 1
+                #for current in list_thread_function:
+                #    current.join()      
             else: delaySeconds(1)
     
     def thread_cam(self, time_delay=1000):
@@ -239,7 +248,8 @@ class Mul_RB:
     def controlOneLink(self, idx_or_name, idx_link, angle, time_delay):
         delayMicroseconds(time_delay)
         rb_current, _, _ = self.find_rb(idx_or_name)
-        return rb_current.controlOneLink(idx_link, angle)
+        if not (rb_current is None): return rb_current.controlOneLink(idx_link, angle)
+        else: return None
 
     def configActions(self):
         loop_mul_rb = True
@@ -310,12 +320,12 @@ class Mul_RB:
         self.run = True
         
         #? Start 2 theard
-        self.status_monitor.start()
+        #self.status_monitor.start()
         self.status_control.start()
         self.status_listen.start()
         
         #? Wait 2 thread end task
-        self.status_monitor.join()
+        #self.status_monitor.join()
         self.status_control.join()
         self.status_listen.join()
         print("End task")

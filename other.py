@@ -1,8 +1,19 @@
-import os, random
+import os
+from Tools.CMD import clearCMD
 from Structure.Robot import Robot_V1
+
+#! CLEAN SYSTEM
 os.system('pyclean .')
-rb = Robot_V1('Config\config_RB_1.json')
+os.system('cls')
+PATH_CONFIG_RB = './Config/config_RB_1.json'
+rb = Robot_V1(PATH_CONFIG_RB)
+
 while True:
-  link = random.randint(0, 2)
-  angle = random.randint(-90, 90)
-  rb.controlOneLink(link, angle)
+  clearCMD()
+  link = int(input("Input link:"))
+  angle = float(input("Input Angle:"))
+  print(rb.controlOneLink(link, angle))
+  input()
+  
+  
+  

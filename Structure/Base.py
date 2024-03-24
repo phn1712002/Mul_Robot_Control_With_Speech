@@ -33,9 +33,11 @@ class Base_V1(MechanicalComponents):
             """
             # Check angle
             if not exit:
-                if angle < self.angle_limit[0] and angle > self.angle_limit[1]:
-                    if angle > self.angle_limit[1] and sign_steps == 1: return True
-                    elif angle < self.angle_limit[0] and sign_steps == -1: return True
+                if angle < self.angle_limit[0] or angle > self.angle_limit[1]:
+                    if angle > self.angle_limit[1] and sign_steps == 1: 
+                        return True
+                    if angle < self.angle_limit[0] and sign_steps == -1: 
+                        return True
             return False
             
         

@@ -1,6 +1,11 @@
 {
     "board": "COM6",
     "name": "john", 
+    "skip_check": false,
+    "angle_start": {
+        "angle_1": 50,
+        "angle_2": 50
+    },
 
     "ena_motor": {
         "pin": 8,

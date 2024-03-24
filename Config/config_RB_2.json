@@ -1,7 +1,11 @@
 {
     "board": "COM7",
     "name": "xera", 
-
+    "skip_check": true,
+    "angle_start": {
+        "angle_1": 50,
+        "angle_2": 50
+    },
     "ena_motor": {
         "pin": 8,
         "input": 0
