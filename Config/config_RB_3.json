@@ -1,0 +1,72 @@
+{
+    "board": "COM8",
+    "name": "zac", 
+    "skip_check": true,
+    "angle_start": {
+        "angle_1": 50,
+        "angle_2": 50
+    },
+    "ena_motor": {
+        "pin": 8,
+        "input": 0
+    },
+    "motor_mid":{
+        "step_pin": 3,
+        "dir_pin": 6,
+        "div_step": 16,
+        "pos_dir": 0,
+        "step_skip": 2,
+        "slow_coef": 0.8
+    },
+    "link_base":{
+        "z": [40.5, 78], 
+        "angle_limit": [-60, 60],
+        "delay_motor": 700
+    },
+    "switch_a_2motor":{
+        "pin": 0,
+        "inverse_message": false
+    },
+    "motor_left": {
+        "step_pin": 4,
+        "dir_pin": 7,
+        "div_step": 16,
+        "pos_dir": 0,
+        "step_skip": 2,
+        "slow_coef": 0.8
+    },
+    "switch_left": {
+        "pin": 2,
+        "inverse_message": false
+    },
+    "link_1":{
+        "z": [20 ,49],
+        "delay_motor": 700
+    },
+
+    "motor_right": {
+        "step_pin": 2,
+        "dir_pin": 5,
+        "div_step": 16,
+        "pos_dir": 1,
+        "step_skip": 2,
+        "slow_coef": 0.8
+    },
+    "switch_right": {
+        "pin": 1,
+        "inverse_message": false
+    },
+    "link_2":{
+        "z": [20 ,49],
+        "delay_motor": 700
+    },
+
+    "motor_arm":{
+        "pin": 10
+    },
+    "link_arm":{
+        "z": [1, 1],
+        "angle_limit": [0, 120],
+        "delay_motor": 700
+    }
+}
