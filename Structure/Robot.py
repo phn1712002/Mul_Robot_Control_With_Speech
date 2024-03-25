@@ -97,13 +97,13 @@ class  Robot_V1:
         if self.multi_switch.switch_right.checkClick() and self.multi_switch.switch_left.checkClick() and not (self.multi_switch.switch_mid.checkClick()): return True
         return False        
         
-    def controlOneLink(self, index_link, angle_or_oc):
+    def controlOneLink(self, index_link, angle_or_oc, skip_check_sensor=False):
         if index_link == 0:
-            output = self.link_base.step(angle=angle_or_oc)
+            output = self.link_base.step(angle=angle_or_oc, skip_check_sensor=skip_check_sensor)
         elif index_link == 1:
-            output = self.link_1.step(angle=angle_or_oc)
+            output = self.link_1.step(angle=angle_or_oc, skip_check_sensor=skip_check_sensor)
         elif index_link == 2:
-            output = self.link_2.step(angle=angle_or_oc)
+            output = self.link_2.step(angle=angle_or_oc, skip_check_sensor=skip_check_sensor)
         elif index_link == 3:
             if angle_or_oc: output = self.link_arm.open()
             else: output = self.link_arm.close()
@@ -125,10 +125,10 @@ class  Robot_V1:
         x, y, z = self.getAngleThreeLink()
         return self.controlThreeLink(angle=(-x, -y, -z))
 
-    def controlThreeLink(self, angle:tuple):
-        output_link_base = self.link_base.step(angle=angle[0])
-        output_link1 = self.link_1.step(angle=angle[1])
-        output_link2 = self.link_2.step(angle[2])
+    def controlThreeLink(self, angle:tuple, skip_check_sensor=False):
+        output_link_base = self.link_base.step(angle=angle[0], skip_check_sensor=skip_check_sensor)
+        output_link1 = self.link_1.step(angle=angle[1], skip_check_sensor=skip_check_sensor)
+        output_link2 = self.link_2.step(angle[2], skip_check_sensor=skip_check_sensor)
         return output_link_base, output_link1, output_link2
     
     def getConfig(self, path=None):
@@ -173,7 +173,7 @@ class Mul_RB:
         all_path_config_rb = getFileWithPar(path=path_folder_config, name_file='config_RB_*.json')
         
         for path_config in all_path_config_rb:
-            if self.count_robot_control >= len(ar_mul_rb): break
+            if self.count_robot_control == len(ar_mul_rb): break
             else: ar_mul_rb.append(Robot_V1(path_config))
         return ar_mul_rb
         
@@ -219,17 +219,15 @@ class Mul_RB:
                 list_thread_function_control = []
                 idx = 0
                 for name, actions in self.case_run.items():
-                    if name in list(self.list_name_rb.values()): 
-                        #for link, angle, time_delay in actions:
-                            #self.controlOneLink(name, link, angle, time_delay) 
+                    if name in list(self.list_name_rb.values()):  
                         #? Systeam control all robot only time
-                        function_control = lambda: [self.controlOneLink(name, link, angle, time_delay) for link, angle, time_delay in actions]
+                        function_control = lambda: [self.controlOneLink(name, link, angle, time_delay, True) for link, angle, time_delay in actions]
                         list_thread_function_control.append(threading.Thread(target=function_control))
                         list_thread_function_control[idx].start()
                         idx += 1
-                #? Wait system control all robot
-                for current in list_thread_function_control:
-                    current.join()      
+                    #? Wait system control all robot
+                    for current in list_thread_function_control:
+                        current.join()      
             else: delaySeconds(1)
     
     def thread_cam(self, time_delay=1000):
@@ -249,10 +247,10 @@ class Mul_RB:
         lowercase_string = trimmed_string.lower()
         return lowercase_string
         
-    def controlOneLink(self, idx_or_name, idx_link, angle, time_delay):
+    def controlOneLink(self, idx_or_name, idx_link, angle, time_delay, skip_check_sensor=False):
         delayMicroseconds(time_delay)
         rb_current, _, _ = self.find_rb(idx_or_name)
-        if not (rb_current is None): return rb_current.controlOneLink(idx_link, angle)
+        if not (rb_current is None): return rb_current.controlOneLink(idx_link, angle, skip_check_sensor)
         else: return None
 
     def configActions(self):
@@ -324,12 +322,12 @@ class Mul_RB:
         self.run = True
         
         #? Start 2 theard
-        #self.status_monitor.start()
+        self.status_monitor.start()
         self.status_control.start()
         self.status_listen.start()
         
         #? Wait 2 thread end task
-        #self.status_monitor.join()
+        self.status_monitor.join()
         self.status_control.join()
         self.status_listen.join()
         print("End task")

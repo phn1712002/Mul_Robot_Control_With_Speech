@@ -51,8 +51,13 @@ class Model_2A_Analog(Switch):
             bool: True - switch is pressed and False - no is pressed
         """
         total = 0
-        for _ in range(count_check): 
-            total += self.button.read()
+        count = 0
+        while count < count_check:
+            read = self.button.read()
+            if not read is None: 
+                total += read
+                count += 1
+            else: continue
         average = total / count_check
 
         if self.inverse_message: 
