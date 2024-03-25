@@ -168,7 +168,7 @@ class Mul_RB:
         
         self.ar_mul_rb = self.settingMulRB(path_folder_config=path_folder_config)
         self.list_name_rb = self.getNameAllRB()
-        
+    
     def settingMulRB(self, path_folder_config):
         ar_mul_rb = []
         all_path_config_rb = getFileWithPar(path=path_folder_config, name_file='config_RB_*.json')
@@ -236,8 +236,8 @@ class Mul_RB:
     
     def threadCam(self):
         while self.run:
-            if self.mic.rec_flag: text = f"Status current: {str(self.case_current_name).upper()} - Recoding!"
-            else: text = f"Status current: {str(self.case_current_name).upper()}"
+            if self.mic.rec_flag: text = f"Status current: {str(self.case_current_name)} - Recoding!"
+            else: text = f"Status current: {str(self.case_current_name)}"
             frame = self.cam.getFrame() 
             frame = self.cam.writeText(frame=frame, 
                                        text=text,
@@ -247,7 +247,7 @@ class Mul_RB:
         
     def proccessText(self, string):
         trimmed_string = re.sub(r"\s+", " ", string)
-        lowercase_string = trimmed_string.lower()
+        lowercase_string = trimmed_string.upper()
         return lowercase_string
         
     def controlOneLink(self, idx_or_name, idx_link, angle, time_delay, skip_check_sensor=False):

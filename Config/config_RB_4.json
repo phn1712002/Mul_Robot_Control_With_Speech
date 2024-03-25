@@ -1,6 +1,6 @@
 {
     "board": "COM9",
-    "name": "zin", 
+    "name": "ZIN", 
     "skip_check": true,
     "angle_start": {
         "angle_1": 50,
