@@ -88,10 +88,10 @@ class  Robot_V1:
         #? Check status start of Robot
         if not self.skip_check: 
             if not self.checkStatusStart(): raise Exception("Please set the robot state to the starting position")
-        if not(self.angle_start is None): self.statusStart(**self.angle_start)
+        if not(self.angle_start is None): self.statusStart(**self.angle_start, skip_check_sensor=self.skip_check)
         
-    def statusStart(self, angle_1=50, angle_2=50):
-        return self.controlOneLink(1, angle_1), self.controlOneLink(2, angle_2)
+    def statusStart(self, angle_1=50, angle_2=50, skip_check_sensor=False):
+        return self.controlOneLink(1, angle_1, skip_check_sensor), self.controlOneLink(2, angle_2, skip_check_sensor)
         
     def checkStatusStart(self):
         if self.multi_switch.switch_right.checkClick() and self.multi_switch.switch_left.checkClick() and not (self.multi_switch.switch_mid.checkClick()): return True
@@ -137,7 +137,7 @@ class  Robot_V1:
     
 
 class Mul_RB:
-    def __init__(self, path_folder_config='./Config/', config_actions=False) -> None:
+    def __init__(self, path_folder_config='./Config/') -> None:
         self.path_folder_config = path_folder_config
         
         self.config_mrb = loadJson(getFileWithPar(path=path_folder_config, name_file='config_MRB.json')[0])
@@ -146,6 +146,7 @@ class Mul_RB:
         self.config_cam =  self.config_mrb['cam']
         self.config_key =  self.config_mrb['key']
         self.count_robot_control = self.config_mrb['count_robot_control']
+        self.delay_receiving_new_s = self.config_mrb['delay_receiving_new_s']
         
         self.cam = Camera(**self.config_cam, key_stop=self.config_key['key_stop'])
         self.mic = Micro(**self.config_mic, **self.config_key)
@@ -154,15 +155,15 @@ class Mul_RB:
         self.speech_to_text = Wav2Vec2_tflite(**self.config_model['Wav2Vec2']).build().predict
         self.format_text = self.proccessText
         
-        self.status_listen = threading.Thread(target=self.thread_listen)
-        self.status_control = threading.Thread(target=self.thread_controlRB)
-        self.status_monitor = threading.Thread(target=self.thread_cam)
-
+        self.status_listen = threading.Thread(target=self.threadListen)
+        self.status_control = threading.Thread(target=self.threadControlRB)
+        self.status_monitor = threading.Thread(target=self.threadCam)
+        self.delay_receiving_new_s_fn = lambda: delaySeconds(self.delay_receiving_new_s)
+        
         self.run = False
         self.case_run = None
         self.case_current_name = None
         self.change_case = None
-        if config_actions: self.configActions()
         self.ar_case_run = loadJson(getFileWithPar(path=path_folder_config, name_file='archive_case.json')[0])
         
         self.ar_mul_rb = self.settingMulRB(path_folder_config=path_folder_config)
@@ -185,7 +186,7 @@ class Mul_RB:
             idx += 1
         return dict_idx_name
     
-    def find_rb(self, idx_or_name:str):
+    def findRB(self, idx_or_name:str):
         idx_current = None
         name_current = None
         if idx_or_name in self.list_name_rb:
@@ -200,7 +201,7 @@ class Mul_RB:
                     return self.ar_mul_rb[idx_current], idx_current, name_current
         return None, None, None
             
-    def thread_listen(self):
+    def threadListen(self):
         while self.run:
             audio = self.mic.getFrameToTensor()
             self.change_case = False
@@ -213,24 +214,27 @@ class Mul_RB:
                     self.case_current_name = text
                     self.change_case = True
                 
-    def thread_controlRB(self): 
+    def threadControlRB(self): 
         while self.run:
             if self.case_run != None:
                 list_thread_function_control = []
                 idx = 0
-                for name, actions in self.case_run.items():
-                    if name in list(self.list_name_rb.values()):  
-                        #? Systeam control all robot only time
-                        function_control = lambda: [self.controlOneLink(name, link, angle, time_delay, True) for link, angle, time_delay in actions]
-                        list_thread_function_control.append(threading.Thread(target=function_control))
-                        list_thread_function_control[idx].start()
-                        idx += 1
-                    #? Wait system control all robot
-                    for current in list_thread_function_control:
-                        current.join()      
-            else: delaySeconds(1)
+                is_not_empty = bool(self.case_run.items())
+                if is_not_empty: 
+                    for name, actions in self.case_run.items():
+                        if name in list(self.list_name_rb.values()):  
+                            #? Systeam control all robot only time
+                            function_control = lambda: [self.controlOneLink(name, link, angle, time_delay, skip_check_sensor=True) for link, angle, time_delay in actions]
+                            list_thread_function_control.append(threading.Thread(target=function_control))
+                            list_thread_function_control[idx].start()
+                            idx += 1
+                        #? Wait system control all robot
+                        for current in list_thread_function_control:
+                            current.join() 
+                else: self.delay_receiving_new_s_fn()  
+            else: self.delay_receiving_new_s_fn()
     
-    def thread_cam(self, time_delay=1000):
+    def threadCam(self):
         while self.run:
             if self.mic.rec_flag: text = f"Status current: {str(self.case_current_name).upper()} - Recoding!"
             else: text = f"Status current: {str(self.case_current_name).upper()}"
@@ -239,7 +243,6 @@ class Mul_RB:
                                        text=text,
                                        org=(100, 100))
             self.run = not(self.cam.liveView(frame))
-            delayMicroseconds(time_delay)
         self.cam.close()
         
     def proccessText(self, string):
@@ -249,7 +252,7 @@ class Mul_RB:
         
     def controlOneLink(self, idx_or_name, idx_link, angle, time_delay, skip_check_sensor=False):
         delayMicroseconds(time_delay)
-        rb_current, _, _ = self.find_rb(idx_or_name)
+        rb_current, _, _ = self.findRB(idx_or_name)
         if not (rb_current is None): return rb_current.controlOneLink(idx_link, angle, skip_check_sensor)
         else: return None
 
@@ -263,7 +266,7 @@ class Mul_RB:
             for idx, name in self.list_name_rb.items():
                 print(f"{idx}. Robot_{idx} - {name}")
             select = self.format_text(input("Please enter the name or index of the robot you want to select:"))
-            rb_current, idx_current, name_current = self.find_rb(select)
+            rb_current, idx_current, name_current = self.findRB(select)
             
             loop_save_actions = True
             actions = []
@@ -316,7 +319,6 @@ class Mul_RB:
         
         return saveJson(path_current, data_current)
     
-        
     def runHandle(self):
         #? Start the flag
         self.run = True
