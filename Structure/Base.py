@@ -17,7 +17,7 @@ class Base_V1(MechanicalComponents):
         self.delay_motor = delay_motor
         self.sign_steps_break = None
         
-    def step(self, angle):
+    def step(self, angle=0, skip_check_sensor=False):
         def checkStop_fn(self, angle, sign_steps, exit):
             """ Function callbacks using in steps with task checkStop (stop motor when got stuck)
                 Like fucntion checkStop_fn in Link.py
@@ -33,16 +33,21 @@ class Base_V1(MechanicalComponents):
             """
             # Check angle
             if not exit:
-                if angle < self.angle_limit[0] and angle > self.angle_limit[1]:
-                    if angle > self.angle_limit[1] and sign_steps == 1: return True
-                    elif angle < self.angle_limit[0] and sign_steps == -1: return True
+                if angle < self.angle_limit[0] or angle > self.angle_limit[1]:
+                    if angle > self.angle_limit[1] and sign_steps == 1: 
+                        return True
+                    if angle < self.angle_limit[0] and sign_steps == -1: 
+                        return True
             return False
             
-        
-        # Control motor step
-        return self.motor.step(angle=self.gear.calcParameter(input=angle, inverse=True), delay=self.delay_motor, 
-                               checkStop=lambda angle=0, sign_steps=0, exit=False: checkStop_fn(self, angle, sign_steps, exit)
-                               )        
+        if not skip_check_sensor:
+            # Control motor step
+            return self.motor.step(angle=self.gear.calcParameter(input=angle, inverse=True), delay=self.delay_motor, 
+                                checkStop=lambda angle=0, sign_steps=0, exit=False: checkStop_fn(self, angle, sign_steps, exit)
+                                )  
+        else:
+            # Control motor step
+            return self.motor.step(angle=self.gear.calcParameter(input=angle, inverse=True), delay=self.delay_motor) 
         
     def getAngle(self):
         return self.motor.history_step_angle

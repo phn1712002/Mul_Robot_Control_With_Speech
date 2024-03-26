@@ -5,7 +5,7 @@ from Structure.Robot import Mul_RB
 os.system('pyclean .')
 os.system('cls')
 
-#! PATH CONFIG MODEL
+#! PATH CONFIG MODELr
 PATH_CONFIG_MUL_RB = './Config/'
 
 #! CREATE MULTI ROBOT

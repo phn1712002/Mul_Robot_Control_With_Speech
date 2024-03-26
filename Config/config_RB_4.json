@@ -1,12 +1,11 @@
 {
-    "board": "COM6",
-    "name": "JOHN", 
-    "skip_check": false,
+    "board": "COM9",
+    "name": "ZIN", 
+    "skip_check": true,
     "angle_start": {
         "angle_1": 50,
         "angle_2": 50
     },
-
     "ena_motor": {
         "pin": 8,
         "input": 0
@@ -26,7 +25,7 @@
     },
     "switch_a_2motor":{
         "pin": 0,
-        "inverse_message": true
+        "inverse_message": false
     },
     "motor_left": {
         "step_pin": 4,
@@ -38,7 +37,7 @@
     },
     "switch_left": {
         "pin": 2,
-        "inverse_message": true
+        "inverse_message": false
     },
     "link_1":{
         "z": [20 ,49],
@@ -55,7 +54,7 @@
     },
     "switch_right": {
         "pin": 1,
-        "inverse_message": true
+        "inverse_message": false
     },
     "link_2":{
         "z": [20 ,49],

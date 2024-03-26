@@ -78,6 +78,7 @@ class Wav2Vec2(CustomModel):
             'name': self.name,
             'max_duration': self.max_duration
         }
+
     def exportTFLite(self, path_export='./Checkpoint/export/'):
         if os.path.exists(path_export):
             # Convert to tflite
@@ -100,6 +101,7 @@ class Wav2Vec2(CustomModel):
             return Wav2Vec2_tflite(name_file=self.name, path=path_export).build()
         else: 
             return self
+
 class Wav2Vec2_tflite(Wav2Vec2):
     def __init__(self, path='./Checkpoint/export/', name_file='Wav2Vec2'):
         
