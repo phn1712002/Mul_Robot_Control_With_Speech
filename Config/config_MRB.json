@@ -1,11 +1,11 @@
 {
     "mic": {
-        "record_seconds_default": 5, 
+        "record_seconds_default": 3, 
         "rate": 16000,
         "channels": 1
     },
     "cam":{
-        "COM": 0,
+        "COM": 1,
         "path_font": "./Other/arial.ttf"
     },
     "key":{
