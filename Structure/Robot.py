@@ -165,10 +165,10 @@ class Mul_RB:
         self.case_current_name = None
         self.change_case = None
         self.ar_case_run = loadJson(getFileWithPar(path=path_folder_config, name_file='archive_case.json')[0])
-        
         self.ar_mul_rb = self.settingMulRB(path_folder_config=path_folder_config)
-        self.list_name_rb = self.getNameAllRB()
-    
+        self.list_name_rb, self.check_control_mul = self.getNameAllRB()
+        
+        
     def settingMulRB(self, path_folder_config):
         ar_mul_rb = []
         all_path_config_rb = getFileWithPar(path=path_folder_config, name_file='config_RB_*.json')
@@ -181,10 +181,12 @@ class Mul_RB:
     def getNameAllRB(self):
         idx = 0
         dict_idx_name = {}
+        check_control_mul = {}
         for rb in self.ar_mul_rb:
-            dict_idx_name.update({idx:rb.config_name}) 
+            dict_idx_name.update({idx:rb.config_name})
+            check_control_mul.update({rb.config_name:False})
             idx += 1
-        return dict_idx_name
+        return dict_idx_name, check_control_mul
     
     def findRB(self, idx_or_name:str):
         idx_current = None
@@ -224,16 +226,23 @@ class Mul_RB:
                     for name, actions in self.case_run.items():
                         if name in list(self.list_name_rb.values()):  
                             #? Systeam control all robot only time
-                            function_control = lambda: [self.controlOneLink(name, link, angle, time_delay, skip_check_sensor=True) for link, angle, time_delay in actions]
-                            list_thread_function_control.append(threading.Thread(target=function_control))
+                            list_thread_function_control.append(threading.Thread(target=self.threadControlOneRB, args=(actions)))
                             list_thread_function_control[idx].start()
                             idx += 1
-                        #? Wait system control all robot
-                        for current in list_thread_function_control:
-                            current.join() 
+                            
+                    wait_end_control = True
+                    while wait_end_control:
+                        check = list(self.check_control_mul.values())
+                        if not(True in check): wait_end_control = False
+                         
                 else: self.delay_receiving_new_s_fn()  
             else: self.delay_receiving_new_s_fn()
-    
+            
+    def threadControlOneRB(self, actions):
+        self.check_control_mul[name] = True
+        control = [self.controlOneLink(name, link, angle, time_delay, skip_check_sensor=True) for link, angle, time_delay in actions]
+        self.check_control_mul[name] = False
+        
     def threadCam(self):
         while self.run:
             if self.mic.rec_flag: text = f"Status current: {str(self.case_current_name)} - Recoding!"
@@ -252,7 +261,7 @@ class Mul_RB:
         
     def controlOneLink(self, idx_or_name, idx_link, angle, time_delay, skip_check_sensor=False):
         delayMicroseconds(time_delay)
-        rb_current, _, _ = self.findRB(idx_or_name)
+        rb_current, idx_current, name_current = self.findRB(idx_or_name) 
         if not (rb_current is None): return rb_current.controlOneLink(idx_link, angle, skip_check_sensor)
         else: return None
 
