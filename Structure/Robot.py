@@ -217,31 +217,24 @@ class Mul_RB:
                     self.change_case = True
                 
     def threadControlRB(self): 
+        list_thread_function_control = []
         while self.run:
             if self.case_run != None:
-                list_thread_function_control = []
-                idx = 0
                 is_not_empty = bool(self.case_run.items())
                 if is_not_empty: 
                     for name, actions in self.case_run.items():
                         if name in list(self.list_name_rb.values()):  
                             #? Systeam control all robot only time
-                            list_thread_function_control.append(threading.Thread(target=self.threadControlOneRB, args=(actions)))
-                            list_thread_function_control[idx].start()
-                            idx += 1
+                            func = lambda : [self.controlOneLink(name, link, angle, time_delay, skip_check_sensor=True) for link, angle, time_delay in actions]
+                            thread_function_control = threading.Thread(target=func)
+                            list_thread_function_control.append(thread_function_control)
+                            thread_function_control.start()
                             
-                    wait_end_control = True
-                    while wait_end_control:
-                        check = list(self.check_control_mul.values())
-                        if not(True in check): wait_end_control = False
+                    for stop_thread in list_thread_function_control:
+                        stop_thread.join()
                          
                 else: self.delay_receiving_new_s_fn()  
             else: self.delay_receiving_new_s_fn()
-            
-    def threadControlOneRB(self, actions):
-        self.check_control_mul[name] = True
-        control = [self.controlOneLink(name, link, angle, time_delay, skip_check_sensor=True) for link, angle, time_delay in actions]
-        self.check_control_mul[name] = False
         
     def threadCam(self):
         while self.run:
@@ -261,7 +254,8 @@ class Mul_RB:
         
     def controlOneLink(self, idx_or_name, idx_link, angle, time_delay, skip_check_sensor=False):
         delayMicroseconds(time_delay)
-        rb_current, idx_current, name_current = self.findRB(idx_or_name) 
+        rb_current, _, _ = self.findRB(idx_or_name) 
+        self.controlOneLink =
         if not (rb_current is None): return rb_current.controlOneLink(idx_link, angle, skip_check_sensor)
         else: return None
 
