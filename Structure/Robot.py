@@ -255,7 +255,6 @@ class Mul_RB:
     def controlOneLink(self, idx_or_name, idx_link, angle, time_delay, skip_check_sensor=False):
         delayMicroseconds(time_delay)
         rb_current, _, _ = self.findRB(idx_or_name) 
-        self.controlOneLink =
         if not (rb_current is None): return rb_current.controlOneLink(idx_link, angle, skip_check_sensor)
         else: return None
 
