@@ -13,7 +13,7 @@
     "motor_mid":{
         "step_pin": 3,
         "dir_pin": 6,
-        "div_step": 16,
+        "div_step": 8,
         "pos_dir": 0,
         "step_skip": 2,
         "slow_coef": 0.8
@@ -30,7 +30,7 @@
     "motor_left": {
         "step_pin": 4,
         "dir_pin": 7,
-        "div_step": 16,
+        "div_step": 8,
         "pos_dir": 0,
         "step_skip": 2,
         "slow_coef": 0.8
@@ -47,7 +47,7 @@
     "motor_right": {
         "step_pin": 2,
         "dir_pin": 5,
-        "div_step": 16,
+        "div_step": 8,
         "pos_dir": 1,
         "step_skip": 2,
         "slow_coef": 0.8
