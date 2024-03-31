@@ -215,13 +215,13 @@ class Mul_RB:
                     self.case_run = self.ar_case_run[text]
                     self.case_current_name = text
                     self.change_case = True
-                
-    def threadControlRB(self): 
-        def func_control(name, actions):
-                                self.check_control_mul[name] = True
-                                [self.controlOneLink(name, link, angle, time_delay, skip_check_sensor=True) for link, angle, time_delay in actions]
-                                self.check_control_mul[name] = False
-                                
+    
+    def funcControlMulRB(self, name, actions):
+        self.check_control_mul[name] = True
+        control = [self.controlOneLink(name, link, angle, time_delay, skip_check_sensor=True) for link, angle, time_delay in actions]
+        self.check_control_mul[name] = False
+    
+    def threadControlRB(self):  
         list_thread_function_control = []
         while self.run:
             if self.case_run != None:
@@ -230,14 +230,18 @@ class Mul_RB:
                     for name, actions in self.case_run.items():
                         if name in list(self.list_name_rb.values()):  
                             #? System control all robot only time   
-                            thread_function_control = threading.Thread(target=func_control, args=(name, action))
+                            thread_function_control = threading.Thread(target=self.funcControlMulRB, args=(name, actions))
                             list_thread_function_control.append(thread_function_control)
                             thread_function_control.start()
-                    #? Wait    
+                    #? Wait
+                    wait_until_end_control = True    
                     while wait_until_end_control:
-                        check = list(check_control_mul.values())
-                        if not(True in check): wait_until_end_control = False
-                                    
+                        check = list(self.check_control_mul.values())
+                        if not(True in check): 
+                            for stop_thread in list_thread_function_control:
+                                stop_thread.join()
+                            wait_until_end_control = False
+                        else: self.delay_receiving_new_s_fn() 
                 else: self.delay_receiving_new_s_fn()  
             else: self.delay_receiving_new_s_fn()
         
