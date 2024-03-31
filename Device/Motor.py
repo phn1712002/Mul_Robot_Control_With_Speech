@@ -94,10 +94,14 @@ class Model_MG90S(Motor):
     def __init__(self, board:Arduino, pin:int, name=None):
         super().__init__(board=board, name=name)
         self.servo = board.get_pin(f'd:{pin}:s')
+        self.angle_current = 0
         
     def step(self, angle, delay=15):
-        self.servo.write(angle)
-        delayMicroseconds(delay)
-        return angle
+        sign_steps = np.sign(angle - self.angle_current)
+        for idx in range(int(self.angle_current), int(angle), int(sign_steps)):
+            self.servo.write(idx)
+            delayMicroseconds(delay)
+        self.angle_current = angle
+        return self.angle_current
              
-            
+
