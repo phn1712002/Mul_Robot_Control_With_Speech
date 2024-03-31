@@ -262,11 +262,12 @@ class Mul_RB:
         return lowercase_string
         
     def controlOneLink(self, idx_or_name, idx_link, angle, time_delay, skip_check_sensor=False):
-        delayMicroseconds(time_delay)
         rb_current, _, _ = self.findRB(idx_or_name) 
-        if not (rb_current is None): return rb_current.controlOneLink(idx_link, angle, skip_check_sensor)
-        else: return None
-
+        if not (rb_current is None): output = rb_current.controlOneLink(idx_link, angle, skip_check_sensor)
+        else: output = None
+        delayMicroseconds(time_delay)
+        return output
+        
     def configActions(self):
         loop_mul_rb = True
         data_save_actions = {}
