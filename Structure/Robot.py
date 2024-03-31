@@ -105,8 +105,8 @@ class  Robot_V1:
         elif index_link == 2:
             output = self.link_2.step(angle=angle_or_oc, skip_check_sensor=skip_check_sensor)
         elif index_link == 3:
-            if angle_or_oc: output = self.link_arm.open()
-            else: output = self.link_arm.close()
+            if angle_or_oc == 1: output = self.link_arm.open()
+            elif angle_or_oc == 0: output = self.link_arm.close()
         return output
 
     def getAngleOneLink(self, index_link):

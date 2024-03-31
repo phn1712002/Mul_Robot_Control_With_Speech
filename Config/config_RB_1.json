@@ -63,11 +63,11 @@
     },
 
     "motor_arm":{
-        "pin": 10
+        "pin": 11
     },
     "link_arm":{
         "z": [1, 1],
-        "angle_limit": [0, 120],
+        "angle_limit": [0, 90],
         "delay_motor": 700
     }
 }

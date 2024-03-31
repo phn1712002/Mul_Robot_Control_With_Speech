@@ -19,13 +19,13 @@ class PickDropMechanism_V1(MechanicalComponents):
         """
             Control motor steps to open arm using pick object
         """
-        self.motor.step(self.angle_limit[0], self.delay_motor)
+        self.motor.step(self.angle_limit[1], self.delay_motor)
 
     def close(self):
         """
             Control motor steps to open arm using drop object
         """
-        self.motor.step(self.angle_limit[1], self.delay_motor)
+        self.motor.step(self.angle_limit[0], self.delay_motor)
     
    
     
