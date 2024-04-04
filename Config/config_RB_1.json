@@ -68,6 +68,6 @@
     "link_arm":{
         "z": [1, 1],
         "angle_limit": [0, 90],
-        "delay_motor": 1000000
+        "delay_motor": 700
     }
 }
