@@ -1,8 +1,9 @@
+import numpy as np
 from pyfirmata import Arduino
 from .Components import ElectronicComponents
 from Tools.Delay import delayMicroseconds
 from Tools.Math import funcTimeDelayStep
-import numpy as np
+
 
 
 # Interfaces

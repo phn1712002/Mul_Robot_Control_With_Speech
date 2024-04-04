@@ -1,8 +1,8 @@
 
 import cv2, keyboard, tensorflow as tf, sounddevice as sd, numpy as np
-from .Components import ElectronicComponents
 from PIL import ImageFont, ImageDraw, Image
-from Tools import CMD
+from Tools.CMD import clearCMD
+from .Components import ElectronicComponents
 
 class Micro(ElectronicComponents):
     def __init__(self, record_seconds_default=5, rate=44100, channels=1, key_stop=None, key_play_recoding=None, name=None):
@@ -18,7 +18,7 @@ class Micro(ElectronicComponents):
         audio_data = None
         if not self.key_play_recoding is None:
             self.rec_flag = False
-            CMD.clearCMD()
+            clearCMD()
             print("Please press the key to record!")
             keyboard.wait(self.key_play_recoding)
             self.rec_flag = True

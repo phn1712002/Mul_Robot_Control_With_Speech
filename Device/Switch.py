@@ -1,6 +1,6 @@
 from pyfirmata import Arduino
 from .Components import ElectronicComponents
-from Tools import Delay
+
 # Interfaces
 class Switch(ElectronicComponents):
     def __init__(self, board: Arduino, pin: int, name=None):
