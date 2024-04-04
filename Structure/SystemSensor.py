@@ -1,7 +1,6 @@
 from pyfirmata import Arduino
 from Device.Switch import Switch, Model_2A_Analog
 from Device.Components import ElectronicComponents
-from Tools.Delay import delayMicroseconds
 
 class SystemSensor(ElectronicComponents):
     def __init__(self, name=None, board=None, pin=0):

@@ -1,17 +1,17 @@
 import pyfirmata, threading, re, math
 from Device.Peripherals import Micro, Camera
-from Tools.Json import loadJson, saveJson
-from Tools.Folder import getFileWithPar
 from pyfirmata import Arduino
 from Device.Motor import Model_17HS3401, Model_MG90S
 from .Arm import PickDropMechanism_V1
 from .Base import Base_V1
 from .Link import Link_V1
 from .SystemSensor import MultiSwitch_V1
-from Tools.Delay import delaySeconds, delayMicroseconds
 from ModelAI.Wav2Vec2.Architecture.Model import Wav2Vec2_tflite
 from ModelAI.WaveUnet.Architecture.Model import WaveUnet_tflite
-from Tools import CMD
+from Tools.CMD import clearCMD
+from Tools.Delay import delaySeconds, delayMicroseconds
+from Tools.Json import loadJson, saveJson
+from Tools.Folder import getFileWithPar
 
 class  Robot_V1:
     def __init__(self, config_or_path):
@@ -153,7 +153,7 @@ class Mul_RB:
 
         self.remove_noise = WaveUnet_tflite(**self.config_model['WaveUnet']).build().predict
         self.speech_to_text = Wav2Vec2_tflite(**self.config_model['Wav2Vec2']).build().predict
-        self.format_text = self.proccessText
+        self.format_text = self.processText
         
         self.status_listen = threading.Thread(target=self.threadListen)
         self.status_control = threading.Thread(target=self.threadControlRB)
@@ -168,7 +168,7 @@ class Mul_RB:
         self.ar_mul_rb = self.settingMulRB(path_folder_config=path_folder_config)
         self.list_name_rb, self.check_control_mul = self.getNameAllRB()
         
-        
+  
     def settingMulRB(self, path_folder_config):
         ar_mul_rb = []
         all_path_config_rb = getFileWithPar(path=path_folder_config, name_file='config_RB_*.json')
@@ -256,7 +256,7 @@ class Mul_RB:
             self.run = not(self.cam.liveView(frame))
         self.cam.close()
         
-    def proccessText(self, string):
+    def processText(self, string):
         trimmed_string = re.sub(r"\s+", " ", string)
         lowercase_string = trimmed_string.upper()
         return lowercase_string
@@ -273,7 +273,7 @@ class Mul_RB:
         data_save_actions = {}
         
         while loop_mul_rb:
-            CMD.clearCMD()
+            clearCMD()
             print("List all robot in multi:")
             for idx, name in self.list_name_rb.items():
                 print(f"{idx}. Robot_{idx} - {name}")
@@ -284,7 +284,7 @@ class Mul_RB:
             actions = []
             while loop_save_actions:
                 try:
-                    CMD.clearCMD()
+                    clearCMD()
                     print("Link_0 - Base | Link_1 - Link right | Link_2 - Link left | Link_3 - Arm")
                     link = int(input("Please enter index of link (0 -> 3): "))
                     angle = float(input("Please enter angle (-:Left, +:Right): "))
@@ -292,7 +292,7 @@ class Mul_RB:
                 except KeyError: print(KeyError)
                 
                 while True:
-                    CMD.clearCMD()
+                    clearCMD()
                     print(f"Robot_{idx_current} name {name_current} have input link_{link} with angle {angle} -> angle after {angle_after}")
                     time_stop = float(input("Please enter time stop of action current (Microseconds): "))
                     select = input("Save (S) - Delete (D) :")
@@ -305,7 +305,7 @@ class Mul_RB:
                         break
                     
                 while True:
-                    CMD.clearCMD()
+                    clearCMD()
                     select = input(f"Continue save actions of robot_{idx_current} name {name_current} (Y/N):")
                     if self.format_text(select) == 'y':
                         break
@@ -315,7 +315,7 @@ class Mul_RB:
                         break
                 
             while True:
-                CMD.clearCMD()
+                clearCMD()
                 select = input("Continue save actions with robot other (Y/N): ")
                 if self.format_text(select) == 'y':
                     break
@@ -323,7 +323,7 @@ class Mul_RB:
                     loop_mul_rb = False
                     break
                 
-        CMD.clearCMD()
+        clearCMD()
         name_status = self.format_text(input("Name of status?: "))
         path_current = self.path_folder_config + 'archive_case.json'
         data_current = loadJson(path_current)     

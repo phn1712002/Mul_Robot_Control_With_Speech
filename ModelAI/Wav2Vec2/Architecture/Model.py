@@ -1,8 +1,8 @@
 import os
 import numpy as np
 import tensorflow as tf
-from Tools.Json import loadJson, saveJson
 from keras import losses, optimizers, Model, Input
+from Tools.Json import loadJson, saveJson
 from keras.utils import pad_sequences
 from transformers import TFWav2Vec2ForCTC, Wav2Vec2Processor, Wav2Vec2CTCTokenizer, Wav2Vec2FeatureExtractor
 
