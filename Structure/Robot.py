@@ -168,7 +168,7 @@ class Mul_RB:
         self.ar_mul_rb = self.settingMulRB(path_folder_config=path_folder_config)
         self.list_name_rb, self.check_control_mul = self.getNameAllRB()
         
-        
+  
     def settingMulRB(self, path_folder_config):
         ar_mul_rb = []
         all_path_config_rb = getFileWithPar(path=path_folder_config, name_file='config_RB_*.json')
