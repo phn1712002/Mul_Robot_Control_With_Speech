@@ -153,7 +153,7 @@ class Mul_RB:
 
         self.remove_noise = WaveUnet_tflite(**self.config_model['WaveUnet']).build().predict
         self.speech_to_text = Wav2Vec2_tflite(**self.config_model['Wav2Vec2']).build().predict
-        self.format_text = self.proccessText
+        self.format_text = self.processText
         
         self.status_listen = threading.Thread(target=self.threadListen)
         self.status_control = threading.Thread(target=self.threadControlRB)
@@ -256,7 +256,7 @@ class Mul_RB:
             self.run = not(self.cam.liveView(frame))
         self.cam.close()
         
-    def proccessText(self, string):
+    def processText(self, string):
         trimmed_string = re.sub(r"\s+", " ", string)
         lowercase_string = trimmed_string.upper()
         return lowercase_string
