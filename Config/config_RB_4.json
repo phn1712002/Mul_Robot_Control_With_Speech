@@ -4,7 +4,7 @@
     "skip_check": true,
     "angle_start": {
         "angle_1": 50,
-        "angle_2": 50
+        "angle_2": 30
     },
     "ena_motor": {
         "pin": 8,
