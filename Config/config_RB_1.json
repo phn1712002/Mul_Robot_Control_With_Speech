@@ -1,7 +1,7 @@
 {
-    "board": "COM6",
+    "board": "COM4",
     "name": "JOHN", 
-    "skip_check": false,
+    "skip_check": true,
     "angle_start": {
         "angle_1": 50,
         "angle_2": 30
