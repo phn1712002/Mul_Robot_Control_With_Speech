@@ -49,7 +49,7 @@ class Camera(ElectronicComponents):
         self.key_stop = key_stop
         self.path_font = path_font
         
-        self.cap = cv2.VideoCapture(self.COM)
+        self.cap = cv2.VideoCapture(self.COM, cv2.CAP_DSHOW)
         if not self.cap.isOpened():
             raise RuntimeError("Camera error")
         else:

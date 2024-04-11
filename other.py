@@ -5,7 +5,7 @@ from Structure.Robot import Robot_V1
 #! CLEAN SYSTEM
 os.system('pyclean .')
 os.system('cls')
-PATH_CONFIG_RB = './Config/config_RB_1.json'
+PATH_CONFIG_RB = './Config/config_RB_2.json'
 rb = Robot_V1(PATH_CONFIG_RB)
 
 while True:
