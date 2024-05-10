@@ -5,10 +5,10 @@ from Structure.Robot import Mul_RB
 os.system('pyclean .')
 os.system('cls')
 
-#! PATH CONFIG MODEL
+#! PATH MODEL MODELr
 PATH_CONFIG_MUL_RB = './Config/'
 
 #! CREATE MULTI ROBOT
 mul = Mul_RB(PATH_CONFIG_MUL_RB)
-mul.runHandle()
+mul.runRandom()
  

@@ -1,4 +1,4 @@
-import pyfirmata, threading, re, math
+import pyfirmata, threading, re, math, numpy
 from Device.Peripherals import Micro, Camera
 from pyfirmata import Arduino
 from Device.Motor import Model_17HS3401, Model_MG90S
@@ -345,6 +345,24 @@ class Mul_RB:
         self.status_control.join()
         self.status_listen.join()
         print("End task")
+        
+    def runRandom(self):
+        #? Start the flag
+        self.run = True
+        
+        #? Start 2 theard
+        self.status_control.start()
+        option = ["PHƯƠNG ÁN MỘT", "PHƯƠNG ÁN HAI", "PHƯƠNG ÁN BA", "PHƯƠNG ÁN BỐN", "DỪNG LẠI"]
+        while True:
+            idx = numpy.random.randint(low=0, high=len(option) - 1)
+            text = option[idx]
+            delaySeconds(1)
+            text = self.format_text(text)
+            if text in self.ar_case_run:
+                self.case_run = self.ar_case_run[text]
+                self.case_current_name = text
+                self.change_case = True
+
             
             
         
