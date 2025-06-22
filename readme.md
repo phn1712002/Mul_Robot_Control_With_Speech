@@ -20,7 +20,7 @@ Sau đó tạo tín hiệu điều khiển cho các cánh tay robot công nghi�
 
 2. Tên của đề tài "Thiết kế, chế tạo và điều khiển hệ đa cánh tay robot công nghiệp ứng dụng trí tuệ nhân tạo và kỹ thuật nhận diện giọng nói".
 
-3. [Thuyết minh](https://drive.google.com/file/d/15RftwKtroBWspuka6V3btHpxvT6Mmvdb/view?usp=drive_link)
+3. Tài liệu thuyết minh [PDF](https://drive.google.com/file/d/15RftwKtroBWspuka6V3btHpxvT6Mmvdb/view?usp=drive_link)
    
 ### Lời cảm ơn
 * Cảm ơn PSG. TS Dương Xuân Biên đã hổ trợ nhóm làm các vấn đề nội dung nghiên cứu khoa học này.
